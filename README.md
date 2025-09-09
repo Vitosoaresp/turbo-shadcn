@@ -1,135 +1,151 @@
-# Turborepo starter
+## Turborepo + Next.js + Tailwind v4 + shadcn/ui — Template
 
-This Turborepo starter is maintained by the Turborepo core team.
+Template de monorepo com Turborepo para criar apps Next.js usando Tailwind CSS v4 e shadcn/ui em um pacote compartilhado de UI. Pronto para desenvolvimento local, tipos com TypeScript, formatação com Biome e deploy na Vercel.
 
-## Using this example
+• Node.js >= 20 • Bun 1.2.x • React 19 • Next.js 15 • Tailwind 4
 
-Run the following command:
+## Sumário
 
-```sh
-npx create-turbo@latest
+- O que vem no template
+- Requisitos
+- Começando
+- Scripts úteis
+- Estrutura do monorepo
+- UI compartilhada (shadcn/ui + Tailwind)
+- Adicionando novos componentes shadcn
+- Executando somente um app/pacote
+- Cache remoto do Turborepo (opcional)
+- Deploy na Vercel
+
+## O que vem no template
+
+- apps/web: app Next.js 15 com Turbopack.
+- packages/ui: pacote React com Tailwind v4 e componentes shadcn/ui compartilhados.
+- config/typescript-config: bases de tsconfig unificadas.
+- Turborepo configurado (turbo.json) com pipelines de build/dev/lint/type-check.
+- Biome para lint/format.
+
+## Requisitos
+
+- Node.js 20 ou superior (recomendado usar nvm)
+- Bun 1.2.x (o repositório usa bun.lock e packageManager "bun@…")
+
+## Começando
+
+Instale as dependências na raiz do monorepo:
+
+```bash
+bun install
 ```
 
-## What's inside?
+Suba o ambiente de desenvolvimento (todas as apps/pacotes com watch):
 
-This Turborepo includes the following packages/apps:
-
-### Apps and Packages
-
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
-
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
-
-### Utilities
-
-This Turborepo has some additional tools already setup for you:
-
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
-
-### Build
-
-To build all apps and packages, run the following command:
-
-```
-cd my-turborepo
-
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo build
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build
-yarn dlx turbo build
-pnpm exec turbo build
+```bash
+bun run dev
 ```
 
-You can build a specific package by using a [filter](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters):
+Abra http://localhost:3000 para acessar o app "web".
 
+## Scripts úteis (raiz)
+
+- bun run dev: roda turbo dev (watch para todos os pacotes/apps).
+- bun run build: build para tudo seguindo dependências.
+- bun run lint: lint com Biome em todos os workspaces.
+- bun run check-types: checagem de tipos com TypeScript.
+- bun run format: formata arquivos com Biome.
+
+No app web (apps/web):
+
+- bun run dev: next dev --turbopack na porta 3000.
+- bun run build: next build.
+- bun run start: next start.
+
+## Estrutura do monorepo
+
+- apps/web: app Next.js (React 19, Next 15). Importa o CSS global do pacote UI e usa Turbopack no dev.
+- packages/ui: biblioteca de componentes compartilhada (Tailwind v4 + shadcn/ui). Exporta CSS global, utils e componentes.
+- config/typescript-config: presets de tsconfig compartilhados.
+- turbo.json: pipelines de tarefas (dev, build, lint, check-types).
+
+## UI compartilhada (shadcn/ui + Tailwind)
+
+- CSS global: importado no layout da app para carregar Tailwind e variáveis de tema.
+
+Exemplo (já presente em `apps/web/src/app/layout.tsx`):
+
+```ts
+import "@repo/ui/globals.css";
 ```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo build --filter=docs
 
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build --filter=docs
-yarn exec turbo build --filter=docs
-pnpm exec turbo build --filter=docs
+- PostCSS/Tailwind: o `apps/web/postcss.config.js` reexporta a config do pacote UI, então não é necessário ter configuração duplicada de Tailwind por app.
+- Importação de componentes: os componentes ficam em `packages/ui/src/components/**`. Exemplo de uso do botão:
+
+```tsx
+import { Button } from "@repo/ui/components/ui/button";
+
+export default function Example() {
+	return <Button>Enviar</Button>;
+}
 ```
 
-### Develop
+## Adicionando novos componentes shadcn
 
-To develop all apps and packages, run the following command:
+Adicione componentes diretamente no pacote UI, assim todas as apps podem reutilizá‑los:
 
-```
-cd my-turborepo
-
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo dev
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev
-yarn exec turbo dev
-pnpm exec turbo dev
+```bash
+cd packages/ui
+bun shadcn:add button
 ```
 
-You can develop a specific package by using a [filter](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters):
+Isso gerará os arquivos em `packages/ui/src/components/**` e quaisquer utilitários necessários. Depois, importe no app como mostrado acima. Caso o componente inclua estilos adicionais, eles serão resolvidos pelo `@repo/ui/globals.css` (Tailwind v4 com `@import "tailwindcss";`).
 
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo dev --filter=web
+## Executando somente um app/pacote
 
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
+Você pode filtrar tarefas do Turborepo:
+
+```bash
+# Dev somente do app web
 npx turbo dev --filter=web
-yarn exec turbo dev --filter=web
-pnpm exec turbo dev --filter=web
+
+# Build somente do app web
+npx turbo build --filter=web
 ```
 
-### Remote Caching
+Ou rode scripts no próprio workspace (por exemplo, dentro de `apps/web`):
 
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
-
-Turborepo can use a technique known as [Remote Caching](https://turborepo.com/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
-
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
-
+```bash
+cd apps/web
+bun run dev
 ```
-cd my-turborepo
 
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo login
+## Cache remoto do Turborepo (opcional)
 
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
+Use a Vercel Remote Cache para compartilhar resultados de build entre máquinas e CI/CD:
+
+```bash
 npx turbo login
-yarn exec turbo login
-pnpm exec turbo login
-```
-
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
-
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
-
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo link
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
 npx turbo link
-yarn exec turbo link
-pnpm exec turbo link
 ```
 
-## Useful Links
+## Deploy na Vercel
 
-Learn more about the power of Turborepo:
+O app principal está em `apps/web`.
 
-- [Tasks](https://turborepo.com/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.com/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.com/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.com/docs/reference/configuration)
-- [CLI Usage](https://turborepo.com/docs/reference/command-line-reference)
+Sugestão de configuração:
+
+- Framework: Next.js
+- Diretório do projeto: apps/web
+- Comando de build (na raiz): bun run build (ou build do próprio projeto web se configurado)
+- Output: .next
+
+Se preferir deploy manual, use `bun run build` e `bun run start` dentro de `apps/web`.
+
+## Dicas / Solução de problemas
+
+- Garanta Node 20+: `nvm use 20`.
+- Se o Tailwind não aplicar estilos, confirme a importação de `@repo/ui/globals.css` no layout e a versão do Tailwind (v4) instalada.
+- Para novos componentes, sempre adicione no pacote UI (packages/ui) para manter o design system centralizado.
+
+---
+
+Feito com Turborepo, Next.js 15, React 19, Tailwind v4 e shadcn/ui.
