@@ -1,0 +1,17 @@
+{
+  "$schema": "https://biomejs.dev/schemas/2.2.3/schema.json",
+  "extends": ["//"],
+  "root": false,
+  "files": {
+    "ignoreUnknown": true,
+    "includes": ["src/**/*", "*.ts", "*.tsx"]
+  },
+  "linter": {
+    "rules": {
+      "recommended": true,
+      "suspicious": {
+        "noUnknownAtRules": "off"
+      }
+    }
+  }
+}

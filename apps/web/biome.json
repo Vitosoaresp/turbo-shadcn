@@ -1,0 +1,31 @@
+{
+  "$schema": "https://biomejs.dev/schemas/2.2.3/schema.json",
+  "extends": ["//"],
+  "root": false,
+  "files": {
+    "includes": ["src/**/*", "*.ts", "*.tsx"]
+  },
+  "linter": {
+    "enabled": true,
+    "domains": {
+      "next": "recommended",
+      "react": "recommended"
+    },
+    "rules": {
+      "recommended": true,
+      "nursery": {
+        "useSortedClasses": {
+          "level": "error",
+          "fix": "safe",
+          "options": {
+            "attributes": ["className"],
+            "functions": ["cn", "cva", "tw", "clsx"]
+          }
+        }
+      },
+      "correctness": {
+        "useUniqueElementIds": "off"
+      }
+    }
+  }
+}

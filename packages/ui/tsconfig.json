@@ -1,8 +1,16 @@
 {
-  "extends": "@repo/typescript-config/react-library.json",
-  "compilerOptions": {
-    "outDir": "dist"
-  },
-  "include": ["src"],
-  "exclude": ["node_modules", "dist"]
+	"extends": "@repo/ts-config/react-library.json",
+	"compilerOptions": {
+		"outDir": "dist",
+		"rootDir": "./src",
+		"baseUrl": ".",
+		"jsx": "react-jsx",
+		"moduleResolution": "bundler",
+		"module": "es2022",
+		"paths": {
+			"@repo/ui/*": ["./src/*"]
+		}
+	},
+	"include": ["./src/**/*", "postcss.config.mjs"],
+	"exclude": ["node_modules", "dist"]
 }
